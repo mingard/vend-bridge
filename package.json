@@ -1,0 +1,30 @@
+{
+  "name": "vend-bridge",
+  "version": "1.0.0",
+  "description": "Syntactic Sugar for Vend API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mingard/vend-bridge.git"
+  },
+  "keywords": [
+    "Vend",
+    "API",
+    "Bridge"
+  ],
+  "author": "Arthur Mingard <info@arthurmingard.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mingard/vend-bridge/issues"
+  },
+  "homepage": "https://github.com/mingard/vend-bridge#readme",
+  "dependencies": {
+    "moment": "^2.17.1",
+    "node-fetch": "^1.6.3",
+    "querystring": "^0.2.0",
+    "underscore": "^1.8.3"
+  }
+}
