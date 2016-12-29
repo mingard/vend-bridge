@@ -1,7 +1,7 @@
 'use strict'
 
 const Auth = require('./lib/auth')
-const Terminators = require('./lib/terminators')
+const Helpers = require('./lib/helpers')
 const _ = require('underscore')
 const fetch = require('node-fetch')
 const path = require('path')
@@ -72,19 +72,19 @@ VendBridge.prototype.request = function (token) {
 
 /**
  * Extend With Terminators
- * @param  {[type]} terminators [description]
+ * @param  {[type]} helpers [description]
  * @return {[type]}             [description]
  */
-const extendWithTerminators = (terminators) => {
-  _.each(Object.getPrototypeOf(terminators), (value, key) => {
-    VendBridge.prototype[key] = terminators[key]
+const extendWithTerminators = (helpers) => {
+  _.each(Object.getPrototypeOf(helpers), (value, key) => {
+    VendBridge.prototype[key] = helpers[key]
   })
 }
 
 module.exports = function (options) {
 
-  // Extend Bridge with Vend terminators  
-  extendWithTerminators(new Terminators())
+  // Extend Bridge with Vend helpers  
+  extendWithTerminators(new Helpers())
   return new VendBridge(options)
 }
 module.exports.VendBridge = VendBridge
