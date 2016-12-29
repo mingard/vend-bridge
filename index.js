@@ -4,10 +4,9 @@ const Auth = require('./lib/auth')
 const Terminators = require('./lib/terminators')
 const _ = require('underscore')
 const fetch = require('node-fetch')
+const path = require('path')
 
 const VendBridge = function (options) {
-  console.log("New Vend Bridge")
-
   this.options = options
 
   this.domain = `https://${this.options.domain_prefix}.vendhq.com`
@@ -30,8 +29,29 @@ VendBridge.prototype.get = function () {
   })
 }
 
-VendBridge.prototype.createMiddleware = function () {
+/**
+ * Create Middleware
+ * @param  {[type]} routePath [description]
+ * @param  {[type]} server    [description]
+ * @return {[type]}           [description]
+ */
+VendBridge.prototype.createMiddleware = function (routePath, server) {
   // Add route for each method in terminators
+  server.get(`${path.normalize(routePath || '/vend')}/:method`, (req, res, next) => {
+    res.header('Content-Type', 'application/json')
+    switch(req.params.method) {
+      case 'products':
+        this.products({limit: 10}).get().then((products) => {
+          res.write(JSON.stringify(products, null, 2))
+          res.end()
+          return next()
+        })
+      break;
+      default: 
+        res.end()
+        return next()
+    }
+  })
   return this
 }
 
