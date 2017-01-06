@@ -18,12 +18,11 @@ const VendBridge = function (options) {
  * GET
  * @return {[type]} [description]
  */
-VendBridge.prototype.get = function () {
-
+VendBridge.prototype.get = function (method) {
   return this.auth.getToken().then((token) => {
     console.log(`Token response ${JSON.stringify(token, null, 2)}`)
     if (this.apiUri) {
-      return this.request(token)
+      return this.request(token, method || 'GET')
     }
     return token
   })
@@ -62,9 +61,9 @@ VendBridge.prototype.createMiddleware = function (routePath, server) {
   return this
 }
 
-VendBridge.prototype.request = function (token) {
+VendBridge.prototype.request = function (token, method) {
   return fetch(this.apiUri + '?after=10&limit=1', {
-    method: 'GET',
+    method: method,
     headers: {
       'Authorization': `${token.token_type} ${token.access_token}`
     }
