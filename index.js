@@ -18,11 +18,11 @@ const VendBridge = function (options) {
  * GET
  * @return {[type]} [description]
  */
-VendBridge.prototype.get = function (method) {
+VendBridge.prototype.get = function (helper, method) {
   return this.auth.getToken().then((token) => {
-    console.log(`Token response ${JSON.stringify(token, null, 2)}`)
-    if (this.apiUri) {
-      return this.request(token, method || 'GET')
+    // console.log(`Token response ${JSON.stringify(token, null, 2)}`)
+    if (helper.apiUri) {
+      return this.request(helper, token, method || 'GET')
     }
     return token
   })
@@ -40,14 +40,14 @@ VendBridge.prototype.createMiddleware = function (routePath, server) {
     res.header('Content-Type', 'application/json')
     switch(req.params.method) {
       case 'products':
-        this.products({limit: 10}).get().then((products) => {
+        return this.get(new Helpers(this.domain).products({limit: 10})).then((products) => {
           res.write(JSON.stringify(products, null, 2))
           res.end()
           return next()
         })
       break;
       case 'product_types':
-        this.productTypes().get().then((types) => {
+        return this.get(new Helpers(this.domain).productTypes()).then((types) => {
           res.write(JSON.stringify(types, null, 2))
           res.end()
           return next()
@@ -61,8 +61,8 @@ VendBridge.prototype.createMiddleware = function (routePath, server) {
   return this
 }
 
-VendBridge.prototype.request = function (token, method) {
-  return fetch(this.apiUri + '?after=10&limit=1', {
+VendBridge.prototype.request = function (helper, token, method) {
+  return fetch(helper.apiUri + '?after=10&limit=1', {
     method: method,
     headers: {
       'Authorization': `${token.token_type} ${token.access_token}`
@@ -71,7 +71,8 @@ VendBridge.prototype.request = function (token, method) {
     return response.json().then(resp => {
       return resp
     })
-  }).catch(() => {
+  }).catch((err) => {
+    return {err: err}
     // Handle error
   })
 }
@@ -81,16 +82,16 @@ VendBridge.prototype.request = function (token, method) {
  * @param  {[type]} helpers [description]
  * @return {[type]}             [description]
  */
-const extendWithHelpers = (helpers) => {
-  _.each(Object.getPrototypeOf(helpers), (value, key) => {
-    VendBridge.prototype[key] = helpers[key]
-  })
-}
+// const extendWithHelpers = (helpers) => {
+//   _.each(Object.getPrototypeOf(helpers), (value, key) => {
+//     VendBridge.prototype[key] = helpers[key]
+//   })
+// }
 
 module.exports = function (options) {
 
   // Extend Bridge with Vend helpers  
-  extendWithHelpers(new Helpers())
+  // extendWithHelpers(new Helpers())
   return new VendBridge(options)
 }
 module.exports.VendBridge = VendBridge
