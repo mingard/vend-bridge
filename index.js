@@ -47,6 +47,13 @@ VendBridge.prototype.createMiddleware = function (routePath, server) {
           return next()
         })
       break;
+      case 'product_types':
+        this.productTypes().get().then((types) => {
+          res.write(JSON.stringify(types, null, 2))
+          res.end()
+          return next()
+        })
+      break;
       default: 
         res.end()
         return next()
@@ -75,7 +82,7 @@ VendBridge.prototype.request = function (token) {
  * @param  {[type]} helpers [description]
  * @return {[type]}             [description]
  */
-const extendWithTerminators = (helpers) => {
+const extendWithHelpers = (helpers) => {
   _.each(Object.getPrototypeOf(helpers), (value, key) => {
     VendBridge.prototype[key] = helpers[key]
   })
@@ -84,7 +91,7 @@ const extendWithTerminators = (helpers) => {
 module.exports = function (options) {
 
   // Extend Bridge with Vend helpers  
-  extendWithTerminators(new Helpers())
+  extendWithHelpers(new Helpers())
   return new VendBridge(options)
 }
 module.exports.VendBridge = VendBridge
