@@ -38,16 +38,17 @@ VendBridge.prototype.createMiddleware = function (routePath, server) {
   // Add route for each method in terminators
   server.get(`${path.normalize(routePath || '/vend')}/:method`, (req, res, next) => {
     res.header('Content-Type', 'application/json')
+    let helper = new Helpers(this.domain)
     switch(req.params.method) {
       case 'products':
-        return this.get(new Helpers(this.domain).products({limit: 10})).then((products) => {
+        return this.get(helper.products({limit: 10})).then((products) => {
           res.write(JSON.stringify(products, null, 2))
           res.end()
           return next()
         })
       break;
       case 'product_types':
-        return this.get(new Helpers(this.domain).productTypes()).then((types) => {
+        return this.get(helper.productTypes()).then((types) => {
           res.write(JSON.stringify(types, null, 2))
           res.end()
           return next()
