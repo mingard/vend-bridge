@@ -36,34 +36,32 @@ VendBridge.prototype.get = function (helper, method) {
  */
 VendBridge.prototype.createMiddleware = function (routePath, server) {
   // Add route for each method in terminators
-  server.get(`${path.normalize(routePath || '/vend')}/:method`, (req, res, next) => {
+  let query
+  server.get(`${path.normalize(routePath || '/vend')}/:type`, (req, res, next) => {
     res.header('Content-Type', 'application/json')
-    let helper = new Helpers(this.domain)
-    switch(req.params.method) {
+    switch(req.params.type) {
       case 'products':
-        return this.get(helper.products({limit: 10})).then((products) => {
-          res.write(JSON.stringify(products, null, 2))
-          res.end()
-          return next()
-        })
+        console.log('Product Filters', req.query) // Should be a list of optionals
+        query = new Helpers(this.domain).products({page_size: 100, after: 0, active: true})
       break;
       case 'product_types':
-        return this.get(helper.productTypes()).then((types) => {
-          res.write(JSON.stringify(types, null, 2))
-          res.end()
-          return next()
-        })
+        query = new Helpers(this.domain).productTypes()
       break;
       default: 
         res.end()
         return next()
     }
+    return this.get(query).then((results) => {
+      res.write(JSON.stringify(results, null, 2))
+      res.end()
+      return next()
+    })
   })
   return this
 }
 
 VendBridge.prototype.request = function (helper, token, method) {
-  return fetch(helper.apiUri + '?after=10&limit=1', {
+  return fetch(`${helper.apiUri}${!_.isUndefined(helper.query) ? `?${helper.query}` : ''}`, {
     method: method,
     headers: {
       'Authorization': `${token.token_type} ${token.access_token}`
